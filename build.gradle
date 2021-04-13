@@ -14,6 +14,7 @@ buildscript {
     classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
     classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:1.0.1'
     classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0'
+    //classpath 'org.anarres.jarjar:jarjar-gradle:1.0.0'
   }
 }
 
@@ -40,6 +41,9 @@ if (project.hasProperty('overrideBuildEnvironment')) {
 
 subprojects {
   apply plugin: "com.github.hierynomus.license"
+  //apply plugin: 'application'
+  //apply plugin: 'org.anarres.jarjar'
+  //mainClassName = "org.anarres.jarjar.test.Main"
 
   license {
     header = file("${rootDir}/gradle/license/LICENSE_HEADER")

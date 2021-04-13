@@ -5,6 +5,11 @@
  */
 package com.linkedin.transport.test.trino;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import io.trino.metadata.BoundSignature;
+import io.trino.metadata.FunctionBinding;
+import io.trino.metadata.FunctionId;
 import io.trino.operator.scalar.AbstractTestFunctions;
 import io.trino.spi.type.Type;
 import com.linkedin.transport.api.StdFactory;
@@ -17,6 +22,7 @@ import com.linkedin.transport.test.spi.ToPlatformTestOutputConverter;
 import java.util.List;
 import java.util.Map;
 
+import static io.trino.type.UnknownType.*;
 
 
 public class TrinoTester extends AbstractTestFunctions implements SqlStdTester {
@@ -46,12 +52,13 @@ public class TrinoTester extends AbstractTestFunctions implements SqlStdTester {
   @Override
   public StdFactory getStdFactory() {
     if (_stdFactory == null) {
-      _stdFactory = new TrinoFactory(this.functionAssertions.getMetadata());
-      /*FunctionBinding functionBinding = new FunctionBinding(
+      FunctionBinding functionBinding = new FunctionBinding(
           new FunctionId("test"),
           new BoundSignature("test", UNKNOWN, ImmutableList.of()),
           ImmutableMap.of(),
           ImmutableMap.of());
+      _stdFactory = new TrinoFactory(this.functionAssertions.getMetadata(), functionBinding);
+      /*
       Map<TypeSignature, Type> typeDependencies = new HashMap<>();
       for (Type type : this.functionAssertions.getMetadata().getTypes()) {
         typeDependencies.put(type.getTypeSignature(), type);

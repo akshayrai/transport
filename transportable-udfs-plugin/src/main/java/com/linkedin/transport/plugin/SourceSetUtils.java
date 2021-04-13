@@ -76,6 +76,17 @@ public class SourceSetUtils {
    */
   static void addDependencyToConfiguration(Project project, Configuration configuration, Object dependency) {
     configuration.withDependencies(dependencySet -> dependencySet.add(project.getDependencies().create(dependency)));
+    //project.getConfigurations().add("instrumentedJars");
+
+    //configuration.filter(it -> it.getName().contains("FunctionDependencies"));
+    //configuration.
+    //from(configurations.testCompile.collect { it.isDirectory() ? it : zipTree(it) }) {
+    //  exclude '**/*FunctionDependencies*.class'
+    //}
+/*    Map<String, String> excludeProperties = new HashMap<>();
+    excludeProperties.put("group", "io.trino");
+    excludeProperties.put("module", "trino-main");
+    configuration.exclude(excludeProperties);*/
   }
 
   /**

@@ -15,24 +15,59 @@ dependencies {
   compile project(':transportable-udfs-api')
   compile project(':transportable-udfs-type-system')
   compile project(':transportable-udfs-utils')
-  //compileOnly(files('/Users/akrai/trino-main-352.jar'))
   compileOnly(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
-  //testCompile(files('/Users/akrai/trino-main-352.jar'))
-  testCompile(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
-    exclude 'group': 'com.google.collections', 'module': 'google-collections'
-  }
-  //testCompile(files('/Users/akrai/trino-main-352-tests.jar'))
-  testCompile(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version', classifier: 'tests') {
-    exclude 'group': 'com.google.collections', 'module': 'google-collections'
-  }
-  //compileOnly(files('/Users/akrai/trino-spi-352.jar'))
   compileOnly(group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
   compile('org.apache.hadoop:hadoop-hdfs:2.7.4')
   compile('org.apache.hadoop:hadoop-common:2.7.4')
-  testCompile('io.airlift:testing:0.142')
+
+  testCompile(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
+    exclude 'group': 'com.google.collections', 'module': 'google-collections'
+  }
+  testCompile(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version', classifier: 'tests') {
+    exclude 'group': 'com.google.collections', 'module': 'google-collections'
+  }
+  //testCompile('io.airlift:testing:0.142')
   // The io.airlift.slice dependency below has to match its counterpart  in trino-root's pom.xml file
   // If not specified, an older version is picked up transitively from another dependency
-  testCompile(group: 'io.airlift', name: 'slice', version: project.ext.'airlift-slice-version')
+  //testCompile(group: 'io.airlift', name: 'slice', version: project.ext.'airlift-slice-version')
 }
+
+jar {
+  from sourceSets.main.output
+
+  dependsOn configurations.runtimeClasspath
+  from(configurations.compileOnly.collect { it.isDirectory() ? it : zipTree(it) }) {
+    exclude { FileTreeElement e ->
+      e.name.contains("FunctionDependencies")
+    }
+  }
+}
+
+/*configurations {
+  instrumentedJars {
+    canBeConsumed = true
+    canBeResolved = false
+    // If you want this configuration to share the same dependencies, otherwise omit this line
+    extendsFrom implementation, runtimeOnly
+  }
+}*/
+
+/*task uberJar(type: Jar) {
+  archiveClassifier = 'test'
+
+  from sourceSets.main.output
+
+  dependsOn configurations.runtimeClasspath
+  from(configurations.testCompile.collect { it.isDirectory() ? it : zipTree(it) }) {
+    exclude { FileTreeElement e ->
+      e.name.contains("FunctionDependencies")
+    }
+  }
+}*/
+
+/*
+artifacts {
+  instrumentedJars(uberJar)
+}*/
