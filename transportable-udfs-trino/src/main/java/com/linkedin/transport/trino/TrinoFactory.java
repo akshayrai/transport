@@ -31,6 +31,7 @@ import com.linkedin.transport.trino.data.TrinoString;
 import com.linkedin.transport.trino.data.TrinoStruct;
 import io.airlift.slice.Slices;
 import io.trino.metadata.FunctionBinding;
+import io.trino.metadata.FunctionDependencies;
 import io.trino.metadata.Metadata;
 import io.trino.metadata.OperatorNotFoundException;
 import io.trino.spi.function.InvocationConvention;
@@ -51,11 +52,19 @@ import static io.trino.sql.analyzer.TypeSignatureTranslator.*;
 public class TrinoFactory implements StdFactory {
 
   final FunctionBinding functionBinding;
+  final FunctionDependencies functionDependencies;
   final Metadata metadata;
 
   public TrinoFactory(Metadata metadata, FunctionBinding functionBinding) {
     this.metadata = metadata;
     this.functionBinding = functionBinding;
+    this.functionDependencies = null;
+  }
+
+  public TrinoFactory(FunctionBinding functionBinding, FunctionDependencies functionDependencies) {
+    this.functionBinding = functionBinding;
+    this.functionDependencies = functionDependencies;
+    this.metadata = null;
   }
 
   @Override
@@ -128,15 +137,22 @@ public class TrinoFactory implements StdFactory {
 
   @Override
   public StdType createStdType(String typeSignature) {
+    if (metadata != null) {
+      return TrinoWrapper.createStdType(
+          metadata.getType(applyBoundVariables(parseTypeSignature(typeSignature, ImmutableSet.of()), functionBinding)));
+    }
     return TrinoWrapper.createStdType(
-        metadata.getType(applyBoundVariables(parseTypeSignature(typeSignature, ImmutableSet.of()), functionBinding)));
+          functionDependencies.getType(applyBoundVariables(parseTypeSignature(typeSignature, ImmutableSet.of()), functionBinding)));
   }
 
   public MethodHandle getOperatorHandle(
       OperatorType operatorType,
       List<Type> argumentTypes,
       InvocationConvention invocationConvention) throws OperatorNotFoundException {
-    return metadata.getScalarFunctionInvoker(metadata.resolveOperator(operatorType, argumentTypes),
-        invocationConvention).getMethodHandle();
+    if (metadata != null) {
+      return metadata.getScalarFunctionInvoker(metadata.resolveOperator(operatorType, argumentTypes),
+          invocationConvention).getMethodHandle();
+    }
+    return functionDependencies.getOperatorInvoker(operatorType, argumentTypes, invocationConvention).getMethodHandle();
   }
 }

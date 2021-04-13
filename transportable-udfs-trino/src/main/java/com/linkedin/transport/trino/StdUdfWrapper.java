@@ -27,6 +27,7 @@ import com.linkedin.transport.typesystem.GenericTypeSignatureElement;
 import io.trino.metadata.FunctionArgumentDefinition;
 import io.trino.metadata.FunctionBinding;
 import io.trino.metadata.FunctionDependencies;
+import io.trino.metadata.FunctionDependencyDeclaration;
 import io.trino.metadata.FunctionKind;
 import io.trino.metadata.FunctionMetadata;
 import io.trino.metadata.Signature;
@@ -38,6 +39,7 @@ import io.trino.spi.classloader.ThreadContextClassLoader;
 import io.trino.spi.function.InvocationConvention;
 import io.trino.spi.type.IntegerType;
 import io.trino.spi.type.Type;
+import io.trino.spi.type.TypeSignature;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -54,6 +56,7 @@ import org.apache.commons.lang3.ClassUtils;
 import static io.trino.metadata.Signature.*;
 import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.*;
 import static io.trino.spi.function.InvocationConvention.InvocationReturnConvention.*;
+import static io.trino.spi.function.OperatorType.*;
 import static io.trino.sql.analyzer.TypeSignatureTranslator.parseTypeSignature;
 import static io.trino.util.Reflection.*;
 
@@ -100,7 +103,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     return TimeUnit.DAYS.toMillis(DEFAULT_REFRESH_INTERVAL_DAYS);
   }
 
-/*  @Override
+  @Override
   public FunctionDependencyDeclaration getFunctionDependencies(FunctionBinding functionBinding) {
     FunctionDependencyDeclaration.FunctionDependencyDeclarationBuilder builder = FunctionDependencyDeclaration.builder();
 
@@ -118,7 +121,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     }
     if (isMapType) {
       //builder.addOperatorSignature(HASH_CODE, ImmutableList.of(new TypeSignature("K")));
-      //builder.addOperatorSignature(EQUAL, ImmutableList.of(new TypeSignature("K"), new TypeSignature("K")));
+      builder.addOperatorSignature(EQUAL, ImmutableList.of(new TypeSignature("K"), new TypeSignature("K")));
       //builder.addOperatorSignature(INDETERMINATE, ImmutableList.of(new TypeSignature("K")));
     }
 
@@ -126,12 +129,11 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     //    QualifiedName.of(functionBinding.getBoundSignature().getName()), functionBinding.getBoundSignature().getArgumentTypes());
 
     return builder.build();
-  }*/
+  }
 
   @Override
   public ScalarFunctionImplementation specialize(FunctionBinding functionBinding, FunctionDependencies functionDependencies) {
-    //StdFactory stdFactory = new TrinoFactory(functionBinding, functionDependencies);
-    StdFactory stdFactory = new TrinoFactory(functionDependencies.getMetadata(), functionBinding);
+    StdFactory stdFactory = new TrinoFactory(functionBinding, functionDependencies);
     StdUDF stdUDF = getStdUDF();
     stdUDF.init(stdFactory);
     // Subtract a small jitter value so that refresh is triggered on first call

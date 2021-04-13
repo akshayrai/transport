@@ -63,15 +63,12 @@ class Defaults {
           TrinoWrapperGenerator.class,
           ImmutableList.of(
               getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-trino",
-                  "transport")//,
-              // compile project(path: ":transportable-udfs-trino", configuration: "instrumentedJars")
-              //getDependencyConfiguration(COMPILE_ONLY, "io.trino:trino-main", "trino")
+                  "transport"),
+              getDependencyConfiguration(COMPILE_ONLY, "io.trino:trino-main", "trino")
           ),
           ImmutableList.of(
               getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-trino",
                   "transport"),
-              //getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-trino",
-              //    "transport")
               // trino-main:tests is a transitive dependency of transportable-udfs-test-trino, but some POM -> IVY
               // converters drop dependencies with classifiers, so we apply this dependency explicitly
               getDependencyConfiguration(RUNTIME_ONLY, "io.trino:trino-main", "trino", "tests")
