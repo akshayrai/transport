@@ -33,7 +33,7 @@ subprojects {
       url "https://conjars.org/repo"
     }
   }
-  project.ext.setProperty('presto-version', '333')
+  project.ext.setProperty('trino-version', '352')
   project.ext.setProperty('airlift-slice-version', '0.38')
   project.ext.setProperty('spark-group', 'org.apache.spark')
   project.ext.setProperty('spark-version', '2.3.0')
@@ -62,8 +62,11 @@ subprojects {
     }
 
     checkstyle {
-      configFile = file("${rootDir}/../gradle/checkstyle/checkstyle.xml")
-      configProperties = ['config_loc' : "${rootDir}/../gradle/checkstyle/"]
+      configFile = rootProject.file('../gradle/checkstyle/checkstyle.xml')
+      configProperties = [
+          'configDir': rootProject.file('../gradle/checkstyle'),
+          'baseDir': "${rootDir}/.."
+      ]
       toolVersion '8.23'
     }
   }
